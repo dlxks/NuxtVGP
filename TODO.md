@@ -56,6 +56,11 @@
 - **Navigation**: Working navigation between Home, Launches, and Favorites pages
 - **Responsive Design**: Mobile-friendly layout using Vuetify grid system
 
+## Recent Fixes
+- ✅ Fixed launch site name display issue by handling null values from API
+- ✅ Added fallback text "Unknown" for missing launch site and rocket names
+- ✅ Updated launch success chip to handle null values with warning color
+
 ## Next Steps
 - Test the application locally
 - Fix any TypeScript errors

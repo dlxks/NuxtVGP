@@ -84,10 +84,10 @@
               
               <v-card-text>
                 <div class="mb-2">
-                  <strong>Launch Site:</strong> {{ launch.launch_site?.site_name_long }}
+                  <strong>Launch Site:</strong> {{ launch.launch_site?.site_name_long || 'Unknown' }}
                 </div>
                 <div class="mb-2">
-                  <strong>Rocket:</strong> {{ launch.rocket?.rocket_name }}
+                  <strong>Rocket:</strong> {{ launch.rocket?.rocket_name || 'Unknown' }}
                 </div>
                 <div v-if="launch.details" class="text-caption text-truncate">
                   {{ truncateText(launch.details, 100) }}
@@ -96,10 +96,10 @@
               
               <v-card-actions>
                 <v-chip
-                  :color="launch.launch_success ? 'success' : 'error'"
+                  :color="launch.launch_success === true ? 'success' : launch.launch_success === false ? 'error' : 'warning'"
                   size="small"
                 >
-                  {{ launch.launch_success ? 'Success' : 'Failed' }}
+                  {{ launch.launch_success === true ? 'Success' : launch.launch_success === false ? 'Failed' : 'Unknown' }}
                 </v-chip>
                 <v-spacer />
                 <v-btn
@@ -187,6 +187,8 @@ const filteredLaunches = computed(() => {
 
   let launches = [...data.value.launches]
 
+  console.log('Launches data:', launches)  // Log launches data for debugging
+
   // Filter by year
   if (selectedYear.value) {
     launches = launches.filter(launch => 
@@ -210,7 +212,6 @@ const filteredLaunches = computed(() => {
     return sortOrder.value === 'asc' ? dateA - dateB : dateB - dateA
   })
 
-  console.log(launches)
   return launches
 })
 

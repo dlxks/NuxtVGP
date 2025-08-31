@@ -45,59 +45,50 @@
     </v-row>
 
     <!-- Favorites List -->
-    <v-row v-else>
-      <v-col
-        v-for="rocket in favoriteRocketsData"
-        :key="rocket.id"
-        cols="12"
-        sm="6"
-        md="4"
-        lg="3"
-      >
-        <v-card class="h-100">
-          <v-card-title class="text-h6">
-            {{ rocket.name }}
-          </v-card-title>
-          
-          <v-card-subtitle>
-            First flight: {{ formatDate(rocket.first_flight) }}
-          </v-card-subtitle>
-          
-          <v-card-text>
-            <div class="mb-2">
-              <strong>Description:</strong> {{ truncateText(rocket.description, 120) }}
-            </div>
-            
-            <v-divider class="my-2" />
-            
-            <div class="mb-1">
-              <strong>Height:</strong> {{ rocket.height?.meters }}m
-            </div>
-            <div class="mb-1">
-              <strong>Diameter:</strong> {{ rocket.diameter?.meters }}m
-            </div>
-            <div class="mb-1">
-              <strong>Mass:</strong> {{ rocket.mass?.kg?.toLocaleString() }} kg
-            </div>
-            <div class="mb-1">
-              <strong>Stages:</strong> {{ rocket.stages }}
-            </div>
-          </v-card-text>
-          
-          <v-card-actions>
-            <v-spacer />
-            <v-btn
-              icon
-              size="small"
-              color="error"
-              @click="removeFavorite(rocket.id)"
-            >
-              <v-icon>mdi-heart-broken</v-icon>
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-    </v-row>
+<v-row v-else>
+  <v-col
+    v-for="launch in favoriteLaunchesData"
+    :key="launch.id"
+    cols="12"
+    sm="6"
+    md="4"
+    lg="3"
+  >
+    <v-card class="h-100">
+      <v-card-title class="text-h6">
+        {{ launch.mission_name }}
+      </v-card-title>
+      
+      <v-card-subtitle>
+        {{ formatDate(launch.launch_date_utc) }}
+      </v-card-subtitle>
+      
+      <v-card-text>
+        <div class="mb-2">
+          <strong>Launch Site:</strong> {{ launch.launch_site?.site_name_long }}
+        </div>
+        <div class="mb-2">
+          <strong>Rocket:</strong> {{ launch.rocket?.rocket_name }}
+        </div>
+        <div v-if="launch.details" class="text-caption text-truncate">
+          {{ truncateText(launch.details, 120) }}
+        </div>
+      </v-card-text>
+      
+      <v-card-actions>
+        <v-spacer />
+        <v-btn
+          icon
+          size="small"
+          color="error"
+          @click="removeFavorite(launch.id)"
+        >
+          <v-icon>mdi-heart-broken</v-icon>
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-col>
+</v-row>
   </v-container>
 </template>
 
@@ -111,43 +102,43 @@ const favoriteRockets = computed(() => favoritesStore.favoriteRockets)
 
 // GraphQL query (adapted to rockets)
 const query = gql`
-  query GetAllRockets {
-    rockets {
+  query GetAllLaunches {
+    launches {
       id
-      name
-      first_flight
-      description
-      height {
-        meters
+      mission_name
+      launch_date_utc
+      launch_success
+      details
+      launch_site {
+        site_name_long
       }
-      diameter {
-        meters
+      rocket {
+        rocket_name
       }
-      mass {
-        kg
-      }
-      stages
     }
   }
 `
 
 const { data, pending, error } = useAsyncQuery<{
-  rockets: Array<{
+  launches: Array<{
     id: string
-    name: string
-    first_flight: string
-    description: string
-    height: { meters: number }
-    diameter: { meters: number }
-    mass: { kg: number }
-    stages: number
+    mission_name: string
+    launch_date_utc: string
+    launch_success: boolean
+    details: string
+    launch_site: {
+      site_name_long: string
+    }
+    rocket: {
+      rocket_name: string
+    }
   }>
 }>(query)
 
 // Derived data
-const favoriteRocketsData = computed(() => {
-  if (!data.value?.rockets) return []
-  return data.value.rockets.filter(rocket => favoriteRockets.value.includes(rocket.id))
+const favoriteLaunchesData = computed(() => {
+  if (!data.value?.launches) return []
+  return data.value.launches.filter(launch => favoriteRockets.value.includes(launch.id))
 })
 
 // Utils
